@@ -13,7 +13,7 @@ for i, item in enumerate(instancia.itens):
     print(f"  item {i}: peso={item.peso}, valor={item.valor}")
 
 estado = gerar_estado_inicial(instancia)
-resultado_ts = tempera_simulada(instancia, estado)
+resultado_ts, _ = tempera_simulada(instancia, estado)
 
 print("\ntêmpera simulada:")
 for i, (gene, item) in enumerate(zip(resultado_ts.genes, instancia.itens)):
@@ -22,7 +22,7 @@ for i, (gene, item) in enumerate(zip(resultado_ts.genes, instancia.itens)):
 peso_ts = sum(gene * item.peso for gene, item in zip(resultado_ts.genes, instancia.itens))
 print(f"fitness: {fitness(resultado_ts, instancia)} | peso total: {peso_ts}/{instancia.capacidade}")
 
-resultado_ag = algoritmo_genetico(instancia)
+resultado_ag, _, _ = algoritmo_genetico(instancia)
 
 print("\nalgoritmo genético:")
 for i, (gene, item) in enumerate(zip(resultado_ag.genes, instancia.itens)):

@@ -14,19 +14,43 @@
 #   - Soluções inviáveis (peso > capacidade): tratadas com penalização no fitness
 #
 # PARÂMETROS DO ALGORITMO (ambos os critérios de parada são configuráveis):
-#   - temperatura_inicial: temperatura inicial
-#   - temperatura_final: temperatura mínima (critério de parada por temperatura)
+# 
 #   - max_iteracoes: limite de iterações (critério de parada por contagem)
-#   - alpha: fator de resfriamento (ex: T <- T * alpha, resfriamento geométrico)
-#   - iteracoes_por_temperatura: quantas trocas tentar antes de baixar a temperatura
 #
-# CRITÉRIO DE PARADA: para quando T < temperatura_final OU iteração > max_iteracoes
-# (o que vier primeiro) — ambos configuráveis via parametros
+# CRITÉRIO DE PARADA: para quando T <= 0 OU iteração > max_iteracoes
+# (o que vier primeiro)
 #
 # ESCOLHA DA FUNÇÃO DE ESCALONAMENTO:
 #   - Resfriamento geométrico: T(t) = temperatura_inicial * alpha^t  (mais comum, previsível)
 #   - Outras opções: logarítmico, linear — a justificativa será feita no artigo
 
+import math
+from random import random
+from mochila import vizinho_aleatorio, fitness
 
-def tempera_simulada(instancia, parametros):
-    pass
+TEMPERATURA_INICIAL = 1000 # valor inicial definido arbitrariamente
+ALPHA = 0.95 # testar resultados com diferentes valores de alpha
+
+def tempera_simulada(instancia, estado, t_max = 100_000_000):
+    for t in range (1, t_max):
+        temp = escalonamento(t)
+
+        if temp==0.1: # (valor mínimo diferente de zero definido arbitrariamente)
+            return estado
+
+        candidato = vizinho_aleatorio(instancia)
+
+        deltaenerg = fitness(candidato) - fitness(estado)
+
+        if deltaenerg > 0:
+            estado = candidato
+        else:
+            if random() < probabilidade(temp, deltaenerg):
+                estado = candidato
+
+def escalonamento(t):
+    return TEMPERATURA_INICIAL * (ALPHA ** t) # decresce geometricamente
+
+def probabilidade(temp, deltaenerg):
+    return pow(math.e, deltaenerg/temp)
+

@@ -1,4 +1,6 @@
 # Definição formal do Problema da Mochila (0/1 Knapsack)
+# "A representação do problema (vetor binário, fitness, vizinhança) é compartilhada entre os dois algoritmos.
+# Isso evita duplicação e deixa claro no artigo que ambos partem da mesma modelagem."
 #
 # RESPONSABILIDADE DESTE MÓDULO:
 #   - Representar uma instância do problema (lista de itens + capacidade)

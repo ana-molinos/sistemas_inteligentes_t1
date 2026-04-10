@@ -1,32 +1,40 @@
-# Definição formal do Problema da Mochila (0/1 Knapsack)
-# "A representação do problema (vetor binário, fitness, vizinhança) é compartilhada entre os dois algoritmos.
-# Isso evita duplicação e deixa claro no artigo que ambos partem da mesma modelagem."
-#
-# RESPONSABILIDADE DESTE MÓDULO:
-#   - Representar uma instância do problema (lista de itens + capacidade)
-#   - Representar uma solução (vetor binário)
-#   - Calcular o fitness (valor total) e verificar viabilidade (peso <= capacidade)
-#   - Gerar o estado inicial (solução inicial)
-#   - Gerar um vizinho aleatório (flip de um bit) — operação de vizinhança compartilhada
-#
-# MODELAGEM:
-#   - Cada item i tem peso w_i e valor v_i
-#   - Uma solução é um vetor x ∈ {0,1}^n onde x_i=1 significa "item i está na mochila"
-#   - Função objetivo: maximizar Σ(v_i * x_i) sujeito a Σ(w_i * x_i) <= capacidade
-#
-# JUSTIFICATIVA DA REPRESENTAÇÃO BINÁRIA:
-#   - Diretamente mapeada para a natureza 0/1 do problema (incluir ou não cada item)
-#   - Operação de vizinhança natural: flip de um bit (troca inclusão/exclusão de um item)
-#   - Compatível com ambos os algoritmos: TS usa flip individual, AG usa crossover sobre bits
-
+import random
+import copy
 
 class Item:
-    pass
-
+    def __init__(self, peso, valor):
+        self.peso = peso
+        self.valor = valor
 
 class InstanciaMochila:
-    pass
-
+    def __init__(self, itens, capacidade):
+        self.itens = itens       # lista de itens
+        self.capacidade = capacidade
+        self.n = len(itens)
 
 class SolucaoMochila:
-    pass
+    def __init__(self, genes):
+        self.genes = genes       # vetor binário 
+
+def gerar_estado_inicial(instancia):
+    # solução inicial aleatória
+    genes = [random.randint(0, 1) for _ in range(instancia.n)]
+    return SolucaoMochila(genes)
+
+# estado = solução (binário) / instancia = problema
+def fitness(estado, instancia):
+    
+    # testando se o resultado obedece a capacidade da mochila
+    if sum(gene * Item.peso for gene, item in zip(estado.genes, instancia.itens)) > instancia.capacidade
+        return 0
+    
+    # retorna o somatório do valor dos itens
+    return sum(gene * Item.valor for gene, item in zip(estado.genes, instancia.itens))
+
+# implementa um flip aleatório no vetor (i.e.: troca dois itens de estado de pertencimento a mochila)
+# isso é válido pois a abordagem da tempera simulada é baseada em aleatorização da solução
+def vizinho_aleatorio(estado):
+    candidato = copy.copy(estado.genes)      # copia o vetor atual
+    i = random.randint(0, len(candidato)-1)  # escolhe um índice aleatório                                                                                        
+    candidato[i] = 1 - candidato[i]          # inversão (flip)                                                                                                
+    return SolucaoMochila(candidato) 

@@ -15,10 +15,10 @@ def tempera_simulada(instancia, estado, t_max = 100_000_000):
         if temp==0.1: # (valor mínimo diferente de zero definido arbitrariamente)
             return estado # a temperatura foi esgotada e o melhor estado possível encontrado
 
-        candidato = vizinho_aleatorio(instancia)
+        candidato = vizinho_aleatorio(estado)
 
         # a diferença dos valores de fitness que diz qual combinação é mais desejável
-        deltaenerg = fitness(candidato) - fitness(estado)
+        deltaenerg = fitness(candidato, instancia) - fitness(estado, instancia)
 
         if deltaenerg > 0:
             estado = candidato # esse candidato se provou a melhor opção

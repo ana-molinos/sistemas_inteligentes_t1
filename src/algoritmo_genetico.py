@@ -1,39 +1,45 @@
-# Algoritmo Genético (AG) para o Problema da Mochila
-#
-# RESPONSABILIDADE DESTE MÓDULO:
-#   - Inicializar a população (conjunto de soluções binárias)
-#   - Implementar seleção (ex: torneio ou roleta)
-#   - Implementar crossover (ex: ponto único ou dois pontos sobre o vetor binário)
-#   - Implementar mutação (flip aleatório de bits — mesma operação de vizinhança da TS)
-#   - Implementar a substituição geracional (ex: elitismo)
-#   - Registrar o histórico de fitness do melhor e da média da população por geração
-#
-# ONDE A MODELAGEM APARECE AQUI:
-#   - Cromossomo: vetor binário de SolucaoMochila (mesmo da TS)
-#   - Fitness: mesma função de SolucaoMochila.fitness()
-#   - Crossover: opera diretamente sobre a representação binária dos itens
-#   - Mutação: flip de bits — análoga ao vizinho_aleatorio() da TS
-#   - Soluções inviáveis: mesma estratégia de penalização do módulo TS
-#
-# PARÂMETROS DO ALGORITMO (a definir com base em experimentos):
-#   - tamanho_populacao: número de indivíduos
-#   - num_geracoes: critério de parada
-#   - taxa_crossover: probabilidade de crossover entre dois pais
-#   - taxa_mutacao: probabilidade de flip de cada bit
-#   - tipo_selecao: torneio | roleta
-#   - elitismo: bool — preserva o melhor indivíduo entre gerações
-#
-# VARIANTE ESCOLHIDA: AG Canônico
-#   - Seleção por torneio ou roleta (configurável)
-#   - Crossover de ponto único ou dois pontos (configurável)
-#   - Mutação por flip de bit com taxa_mutacao por gene
-#   - Substituição geracional com elitismo opcional
-#
-# JUSTIFICATIVA DO AG CANÔNICO:
-#   - Estrutura clássica e bem documentada — facilita as justificativas do artigo
-#   - O crossover sobre vetor binário é a operação mais natural para esta representação
-#   - Comparação direta com TS é mais limpa: ambos usam a mesma representação e fitness
+import random
+from src.mochila import SolucaoMochila, gerar_estado_inicial, fitness
 
+TAMANHO_POPULACAO = 50
+NUM_GERACOES = 500
+TAXA_CROSSOVER = 0.8
+TAXA_MUTACAO = 0.02  # probabilidade de flip por gene
 
-def algoritmo_genetico(instancia, parametros):
-    pass
+def algoritmo_genetico(instancia, num_geracoes=NUM_GERACOES):
+    populacao = [gerar_estado_inicial(instancia) for _ in range(TAMANHO_POPULACAO)]
+
+    for _ in range(num_geracoes):
+        populacao = sorted(populacao, key=lambda s: fitness(s, instancia), reverse=True)
+
+        nova_populacao = [populacao[0]]  # elitismo: preserva o melhor
+
+        while len(nova_populacao) < TAMANHO_POPULACAO:
+            pai1 = selecao_torneio(populacao, instancia)
+            pai2 = selecao_torneio(populacao, instancia)
+            filho1, filho2 = crossover(pai1, pai2)
+            nova_populacao.append(mutacao(filho1))
+            nova_populacao.append(mutacao(filho2))
+
+        populacao = nova_populacao[:TAMANHO_POPULACAO]
+
+    return max(populacao, key=lambda s: fitness(s, instancia))
+
+def selecao_torneio(populacao, instancia, k=3):
+    # seleciona k individuos aleatórios e retorna o melhor
+    competidores = random.sample(populacao, k)
+    return max(competidores, key=lambda s: fitness(s, instancia))
+
+def crossover(pai1, pai2):
+    # crossover de ponto unico
+    if random.random() > TAXA_CROSSOVER:
+        return pai1, pai2
+    ponto = random.randint(1, len(pai1.genes) - 1)
+    genes1 = pai1.genes[:ponto] + pai2.genes[ponto:]
+    genes2 = pai2.genes[:ponto] + pai1.genes[ponto:]
+    return SolucaoMochila(genes1), SolucaoMochila(genes2)
+
+def mutacao(solucao):
+    # flip de cada gene com probabilidade taxa mutacao
+    genes = [1 - g if random.random() < TAXA_MUTACAO else g for g in solucao.genes]
+    return SolucaoMochila(genes)

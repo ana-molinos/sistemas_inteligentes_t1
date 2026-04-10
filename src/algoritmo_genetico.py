@@ -8,9 +8,15 @@ TAXA_MUTACAO = 0.02  # probabilidade de flip por gene
 
 def algoritmo_genetico(instancia, num_geracoes=NUM_GERACOES):
     populacao = [gerar_estado_inicial(instancia) for _ in range(TAMANHO_POPULACAO)]
+    historico_melhor = []
+    historico_media = []
 
     for _ in range(num_geracoes):
         populacao = sorted(populacao, key=lambda s: fitness(s, instancia), reverse=True)
+
+        valores = [fitness(s, instancia) for s in populacao]
+        historico_melhor.append(valores[0])
+        historico_media.append(sum(valores) / len(valores))
 
         nova_populacao = [populacao[0]]  # elitismo: preserva o melhor
 
@@ -23,7 +29,8 @@ def algoritmo_genetico(instancia, num_geracoes=NUM_GERACOES):
 
         populacao = nova_populacao[:TAMANHO_POPULACAO]
 
-    return max(populacao, key=lambda s: fitness(s, instancia))
+    melhor = max(populacao, key=lambda s: fitness(s, instancia))
+    return melhor, historico_melhor, historico_media
 
 def selecao_torneio(populacao, instancia, k=3):
     # seleciona k individuos aleatórios e retorna o melhor

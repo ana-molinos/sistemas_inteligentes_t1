@@ -9,11 +9,13 @@ ALPHA = 0.95 # testar resultados com diferentes valores de alpha
 # estado é a representão binária da instancia
 # t_max é o número máximo de interações caso o usuário não o defina
 def tempera_simulada(instancia, estado, t_max = 100_000_000):
+    historico = []
+
     for t in range (1, t_max):
         temp = escalonamento(t)
 
         if temp<=0.1: # (valor mínimo diferente de zero definido arbitrariamente)
-            return estado # a temperatura foi esgotada e o melhor estado possível encontrado
+            return estado, historico
 
         candidato = vizinho_aleatorio(estado)
 
@@ -26,6 +28,10 @@ def tempera_simulada(instancia, estado, t_max = 100_000_000):
             # se passar na probabilidade (como se girando um dado), escolhe a pior opção
             if random() < probabilidade(temp, deltaenerg):
                 estado = candidato
+
+        historico.append(fitness(estado, instancia))
+
+    return estado, historico
 
 # função de relação entre o tempo t e a “temperatura” T (essa função controla a probabilidade de aceitar passos piores)
 def escalonamento(t):

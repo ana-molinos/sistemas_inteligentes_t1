@@ -1,26 +1,8 @@
-# Instâncias do Problema da Mochila para os experimentos
-#
-# RESPONSABILIDADE DESTE MÓDULO:
-#   - Definir instâncias fixas (pequena, média, grande) para testes reproduzíveis
-#   - Implementar gerador de instâncias aleatórias (para experimentos estatísticos)
-#
-# INSTÂNCIAS: todas geradas aleatoriamente com seed fixo (reprodutibilidade)
-#   - PEQUENA: ~10 itens — permite verificar solução ótima por força bruta (2^10 = 1024)
-#   - MÉDIA:   ~30 itens — custo moderado
-#   - GRANDE:  ~100 itens — onde a busca heurística se justifica
-#
-# FORMATO DE CADA INSTÂNCIA:
-#   {
-#     "nome": str,
-#     "capacidade": int,
-#     "itens": [{"peso": int, "valor": int}, ...]
-#   }
-#
-# CAPACIDADE SUGERIDA: ~50% da soma total dos pesos (instância com tensão real)
-# SEEDS FIXOS: garantem que TS e AG rodam sobre exatamente os mesmos dados
-#
-# NOTA: Para a instância pequena, será calculado o ótimo por força bruta
-# e usado como referência para medir a qualidade das heurísticas no artigo.
+import random
+import sys
+import os
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+from src.mochila import Item, InstanciaMochila, SolucaoMochila, fitness
 
 SEED_PEQUENA = 42
 SEED_MEDIA   = 42
@@ -28,22 +10,34 @@ SEED_GRANDE  = 42
 
 
 def gerar_instancia_aleatoria(n_itens, fracao_capacidade=0.5, seed=None):
-    # fracao_capacidade: fração da soma total de pesos usada como capacidade
-    pass
+    rng = random.Random(seed)
+    itens = [Item(rng.randint(1, 20), rng.randint(1, 20)) for _ in range(n_itens)]
+    capacidade = int(sum(item.peso for item in itens) * fracao_capacidade)
+    return InstanciaMochila(itens, capacidade)
 
 
 def gerar_instancia_pequena():
-    pass
+    return gerar_instancia_aleatoria(10, seed=SEED_PEQUENA)
 
 
 def gerar_instancia_media():
-    pass
+    return gerar_instancia_aleatoria(30, seed=SEED_MEDIA)
 
 
 def gerar_instancia_grande():
-    pass
+    return gerar_instancia_aleatoria(100, seed=SEED_GRANDE)
 
 
 def forca_bruta(instancia):
-    # Enumera todas as 2^n soluções — só viável para instância pequena
-    pass
+    melhor_solucao = None
+    melhor_fitness = -1
+
+    for i in range(2 ** instancia.n):
+        genes = [(i >> j) & 1 for j in range(instancia.n)]
+        solucao = SolucaoMochila(genes)
+        valor = fitness(solucao, instancia)
+        if valor > melhor_fitness:
+            melhor_fitness = valor
+            melhor_solucao = solucao
+
+    return melhor_solucao, melhor_fitness

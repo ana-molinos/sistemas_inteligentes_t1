@@ -1,6 +1,6 @@
 import math
 from random import random
-from mochila import vizinho_aleatorio, fitness
+from src.mochila import vizinho_aleatorio, fitness
 
 TEMPERATURA_INICIAL = 1000 # valor inicial definido arbitrariamente
 ALPHA = 0.95 # testar resultados com diferentes valores de alpha
@@ -12,7 +12,7 @@ def tempera_simulada(instancia, estado, t_max = 100_000_000):
     for t in range (1, t_max):
         temp = escalonamento(t)
 
-        if temp==0.1: # (valor mínimo diferente de zero definido arbitrariamente)
+        if temp<=0.1: # (valor mínimo diferente de zero definido arbitrariamente)
             return estado # a temperatura foi esgotada e o melhor estado possível encontrado
 
         candidato = vizinho_aleatorio(estado)

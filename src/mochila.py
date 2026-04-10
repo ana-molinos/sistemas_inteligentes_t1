@@ -25,11 +25,11 @@ def gerar_estado_inicial(instancia):
 def fitness(estado, instancia):
     
     # testando se o resultado obedece a capacidade da mochila
-    if sum(gene * Item.peso for gene, item in zip(estado.genes, instancia.itens)) > instancia.capacidade
+    if sum(gene * item.peso for gene, item in zip(estado.genes, instancia.itens)) > instancia.capacidade:
         return 0
     
     # retorna o somatório do valor dos itens
-    return sum(gene * Item.valor for gene, item in zip(estado.genes, instancia.itens))
+    return sum(gene * item.valor for gene, item in zip(estado.genes, instancia.itens))
 
 # implementa um flip aleatório no vetor (i.e.: troca dois itens de estado de pertencimento a mochila)
 # isso é válido pois a abordagem da tempera simulada é baseada em aleatorização da solução
